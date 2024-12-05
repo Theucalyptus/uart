@@ -2,3 +2,7 @@
 **/lisez_moi.txt
 
 doc
+
+build/
+*.o
+*.vcd
