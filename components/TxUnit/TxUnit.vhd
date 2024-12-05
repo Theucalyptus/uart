@@ -1,122 +1,126 @@
-library IEEE;
-use IEEE.std_logic_1164.all;
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
 
-entity TxUnit is
-  port (
-    clk, reset : in std_logic;
-    enable : in std_logic;
-    ld : in std_logic;
-    txd : out std_logic;
-    regE : out std_logic;
-    bufE : out std_logic;
-    data : in std_logic_vector(7 downto 0));
-end TxUnit;
+ENTITY TxUnit IS
+  PORT (
+    clk, reset : IN STD_LOGIC;
+    enable     : IN STD_LOGIC;
+    ld         : IN STD_LOGIC;
+    txd        : OUT STD_LOGIC;
+    regE       : OUT STD_LOGIC;
+    bufE       : OUT STD_LOGIC;
+    data       : IN STD_LOGIC_VECTOR(7 DOWNTO 0));
+END TxUnit;
 
-architecture behavorial of TxUnit is
+ARCHITECTURE behavorial OF TxUnit IS
 
-  type t_etat is (repos, load, start, send,  parity, fin);
-  signal etat : t_etat;
+  TYPE t_etat IS (repos, load, start, send, parity, fin);
+  SIGNAL etat : t_etat;
 
-  signal BufferT : std_logic_vector(7 downto 0);
-  signal RegisterT : std_logic_vector(7 downto 0);
-  signal parityBit : std_logic;
-  signal bufEInt : std_logic;
+  SIGNAL BufferT   : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  SIGNAL RegisterT : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  SIGNAL parityBit : STD_LOGIC;
+  SIGNAL bufEInt   : STD_LOGIC;
 
-begin
+BEGIN
+  -- utilisation d'un signal interne pour lire et écrire la valeur de bufE 
+  bufE <= bufEInt;
 
-	-- utilisation d'un signal interne pour 
-	-- lire et écrire la valeur de bufE 
-	bufE <= bufEInt;
-	
+  PROCESS (clk, reset) IS
+    -- compteur de bit émis
+    VARIABLE cptBit : INTEGER := 7;
 
-	process(clk, reset) is 
-		variable cptBit : integer := 7;
-		-- indique si BufferE a été peuplé
-		variable bufld : boolean := false; 
-		
-	begin
-		if reset = '0' then
-			txd <= '1';
-			bufEInt <= '1';
-			regE <= '1';
-			bufld := false;
-			BufferT <= "00000000";
-			RegisterT <= "00000000";
-			parityBit <= '0';
-		elsif rising_edge(clk) then
-			
-			-- si Buffer disponible et demande de chargement
-			-- alors on charge
-			if bufEint = '1' and ld = '1' then
-				BufferT <= data;
-				bufEInt <= '0';
-				bufld := true;
-		   end if;
-			
-			case etat is 
-				when repos =>
-					-- équivalent à ld=1 car en repos, on a toujours bufE=1
-					if bufld then
-						etat <= load;
-					end if;	
-					-- else : on attend, on fait rien
-					
-				when load =>
-					-- on libère le buffer, peuple le registre
-					RegisterT <= BufferT;
-					bufEInt <= '1';
-					bufld := false;
-					regE <= '0';
-					
-					etat <= start;
-				when start =>
-					if enable = '1' then
-						txd <= '0';
-						parityBit <= '0';
-						etat <= send;
-						cptBit := 7;
-					end if;
-					
-					
-				when send =>
-					if enable = '1' then
-						txd <= RegisterT(cptBit);
-						parityBit <= parityBit xor RegisterT(cptBit);
-						cptBit:=cptBit-1;
-						
-						if cptBit < 0 then
-							etat <= parity;
-							-- on a finit d'émettre tout les bits du buffer
-							regE <= '1';
-						end if;
-					end if;
-					
-				when parity => 
-					if enable = '1' then
-						txd <= parityBit;
-						etat <= fin;
-					end if;
-					
-				when fin => 
-					if enable = '1' then
-						txd <= '1';
-						-- si le buffer contient des données
-						-- on repasse directement en émission
-						if bufld then
-							etat <= start;
-						else
-							etat <= repos;
-						end if;
-					end if;
-				
-				when others => null;
-			end case;
-				
-		
-		
-		end if;
-	
-	
-	end process;
+    -- indique si BufferE a été peuplé
+    VARIABLE bufld : BOOLEAN := false;
+  BEGIN
+    IF reset = '0' THEN
+      bufld := false;
 
-end behavorial;
+      etat      <= repos;
+      txd       <= '1';
+      bufEInt   <= '1';
+      regE      <= '1';
+      parityBit <= '0';
+      BufferT   <= "00000000";
+      RegisterT <= "00000000";
+    ELSIF rising_edge(clk) THEN
+      IF bufEint = '1' AND ld = '1' THEN
+        -- si le buffer est vide et qu'il y a demande de chargement
+        -- on charge le buffer et on set bufld à true 
+        -- (variable pour indiquer qu'on a chargé le buffer)
+        BufferT <= data; -- on charge le buffer
+        bufEInt <= '0';  -- Buffer non vide
+        bufld := true;   -- On indique au reste du process qu'on a chargé le buffer
+      END IF;
+
+      -- Automate d'émission
+      CASE etat IS
+        WHEN repos =>
+          -- on attend une demande de chargement avant d'initier l'émission
+          -- Ici on regarde unique si bufld est vrai, puisque le chargement 
+          -- du buffer est géré précédement dans le process
+          IF bufld THEN -- équivalent à ld=1 car en repos, on a toujours bufE=1
+            etat <= load;
+          END IF;
+          -- else : on attend, on fait rien
+
+        WHEN load =>
+          -- Chargement du registre de transmission à partir du buffer d'émission
+          RegisterT <= BufferT;
+          regE      <= '0'; -- Registre chargé
+
+          -- Buffer vide après chargement
+          bufEInt <= '1';
+          bufld := false;
+
+          etat <= start;
+
+        WHEN start =>
+          IF enable = '1' THEN -- front montant de enable (clock de transmission) (valable pour les états suivants)
+            txd       <= '0';    -- Start bit
+            parityBit <= '0';    -- Reset du bit de parité
+            etat      <= send;
+
+            cptBit := 7; -- On reset le compteur de bit vu qu'on commence un nouveau caractère
+          END IF;
+
+        WHEN send =>
+          -- Emission du registre de transmission
+          IF enable = '1' THEN
+            txd       <= RegisterT(cptBit);               -- émission du bit courant
+            parityBit <= parityBit XOR RegisterT(cptBit); -- calcul du bit de parité (XOR)
+            cptBit := cptBit - 1;                         -- on décrémente le compteur de bit
+
+            IF cptBit < 0 THEN
+              -- on a finit d'émettre tout les bits du registre
+              regE <= '1'; -- Registre d'émission vide
+              etat <= parity;
+            END IF;
+          END IF;
+
+        WHEN parity =>
+          -- Emission du bit de parité
+          -- Cet état n'est pas nécessaire, on pourrait émettre le bit de parité
+          -- dans l'état send, mais on le fait ici pour plus de clarté
+          IF enable = '1' THEN
+            txd  <= parityBit;
+            etat <= fin;
+          END IF;
+
+        WHEN fin =>
+          -- Emission du bit de stop
+          IF enable = '1' THEN
+            txd  <= '1'; -- Stop bit
+            etat <= repos;
+
+            IF bufld THEN
+              -- si le buffer contient des données on repasse directement en émission
+              etat <= start;
+            END IF;
+          END IF;
+
+        WHEN OTHERS => NULL; -- 
+      END CASE;
+    END IF;
+  END PROCESS;
+END behavorial;
