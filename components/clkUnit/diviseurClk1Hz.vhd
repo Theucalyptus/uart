@@ -1,39 +1,39 @@
-library IEEE;
-use IEEE.std_logic_1164.all;
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
 
-entity diviseurClk1Hz is
-  port (
-    clk, reset : in  std_logic;
-    nclk       : out std_logic);
-end diviseurClk1Hz;
+ENTITY diviseurClk1Hz IS
+  PORT (
+    clk, reset : IN STD_LOGIC;
+    nclk       : OUT STD_LOGIC);
+END diviseurClk1Hz;
 
-architecture arch_divClk of diviseurClk1Hz is
+ARCHITECTURE arch_divClk OF diviseurClk1Hz IS
 
   -- horloge 1 Hz
   -- plateaux de durée égale
-  constant facteur : natural := 100000000;
-  signal top : std_logic := '0';
-  
-begin  
+  CONSTANT facteur : NATURAL   := 100000000;
+  SIGNAL top       : STD_LOGIC := '0';
 
-  div : process (clk, reset)
-    variable cpt : integer range 0 to facteur-1 := 0;
-  begin 
-    if reset = '0' then
+BEGIN
+
+  div : PROCESS (clk, reset)
+    VARIABLE cpt : INTEGER RANGE 0 TO facteur - 1 := 0;
+  BEGIN
+    IF reset = '0' THEN
       nclk <= '0';
       cpt := 0;
-    elsif rising_edge(clk) then
-      if(cpt = facteur - 1) then
+    ELSIF rising_edge(clk) THEN
+      IF (cpt = facteur - 1) THEN
         cpt := 0;
-      else
+      ELSE
         cpt := cpt + 1;
-      end if;
-      if cpt < facteur/2 then
+      END IF;
+      IF cpt < facteur/2 THEN
         nclk <= '1';
-      else
+      ELSE
         nclk <= '0';
-      end if;
-    end if;
-  end process;
+      END IF;
+    END IF;
+  END PROCESS;
 
-end arch_divClk;
+END arch_divClk;

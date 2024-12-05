@@ -1,80 +1,51 @@
---------------------------------------------------------------------------------
--- Company: 
--- Engineer:
---
--- Create Date:   12:03:15 10/31/2018
--- Design Name:   
--- Module Name:   TestClkUnit.vhd
--- Project Name:  uart
--- Target Device:  
--- Tool versions:  
--- Description:   
--- 
--- VHDL Test Bench Created by ISE for module: clkUnit
--- 
--- Dependencies:
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
--- Notes: 
--- This testbench has been automatically generated using types std_logic and
--- std_logic_vector for the ports of the unit under test.  Xilinx recommends
--- that these types always be used for the top-level I/O of a design in order
--- to guarantee that the testbench will bind correctly to the post-implementation 
--- simulation model.
---------------------------------------------------------------------------------
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 
 ENTITY testClkUnit IS
 END testClkUnit;
- 
-ARCHITECTURE behavior OF testClkUnit IS 
- 
-    -- Component Declaration for the Unit Under Test (UUT)
- 
-    COMPONENT clkUnit
-    PORT(
-         clk : IN  std_logic;
-         reset : IN  std_logic;
-         enableTX : OUT  std_logic;
-         enableRX : OUT  std_logic
-        );
-    END COMPONENT;
-    
 
-   --Inputs
-   signal clk : std_logic := '0';
-   signal reset : std_logic := '0';
+ARCHITECTURE behavior OF testClkUnit IS
 
- 	--Outputs
-   signal enableTX : std_logic;
-   signal enableRX : std_logic;
+  -- Component Declaration for the Unit Under Test (UUT)
 
-   -- Clock period definitions
-   constant clk_period : time := 10 ns;
- 
+  COMPONENT clkUnit
+    PORT (
+      clk      : IN STD_LOGIC;
+      reset    : IN STD_LOGIC;
+      enableTX : OUT STD_LOGIC;
+      enableRX : OUT STD_LOGIC
+    );
+  END COMPONENT;
+  --Inputs
+  SIGNAL clk   : STD_LOGIC := '0';
+  SIGNAL reset : STD_LOGIC := '0';
+
+  --Outputs
+  SIGNAL enableTX : STD_LOGIC;
+  SIGNAL enableRX : STD_LOGIC;
+
+  -- Clock period definitions
+  CONSTANT clk_period : TIME := 10 ns;
+
 BEGIN
 
-   -- Instantiate the Unit Under Test (UUT)
-   uut: clkUnit PORT MAP (
-          clk => clk,
-          reset => reset,
-          enableTX => enableTX,
-          enableRX => enableRX
-        );
+  -- Instantiate the Unit Under Test (UUT)
+  uut : clkUnit PORT MAP(
+    clk      => clk,
+    reset    => reset,
+    enableTX => enableTX,
+    enableRX => enableRX
+  );
 
-   -- Clock process definitions
-   clk_process :process
-   begin
-     clk <= '0';
-     wait for clk_period/2;
-     clk <= '1';
-     wait for clk_period/2;
-   end process;
+  -- Clock process definitions
+  clk_process : PROCESS
+  BEGIN
+    clk <= '0';
+    WAIT FOR clk_period/2;
+    clk <= '1';
+    WAIT FOR clk_period/2;
+  END PROCESS;
 
-  reset <= '0', '1' after 100 ns;
+  reset <= '0', '1' AFTER 100 ns;
 
-end behavior;
+END behavior;

@@ -1,39 +1,39 @@
-library IEEE;
-use IEEE.std_logic_1164.all;
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
 
-entity clkUnit is
-  
- port (
-   clk, reset : in  std_logic;
-   enableTX   : out std_logic;
-   enableRX   : out std_logic);
-    
-end clkUnit;
+ENTITY clkUnit IS
 
-architecture behavorial of clkUnit is
-  constant facteur : natural := 16;
-begin
+  PORT (
+    clk, reset : IN STD_LOGIC;
+    enableTX   : OUT STD_LOGIC;
+    enableRX   : OUT STD_LOGIC);
 
-  enableRX <= clk and reset;
+END clkUnit;
 
-  process(clk, reset) is
-    variable cpt : integer range 0 to facteur-1 := 0;
-  begin
-    if reset = '0' then
-		enableTX <= '0';
+ARCHITECTURE behavorial OF clkUnit IS
+  CONSTANT facteur : NATURAL := 16;
+BEGIN
+
+  enableRX <= clk AND reset;
+
+  PROCESS (clk, reset) IS
+    VARIABLE cpt : INTEGER RANGE 0 TO facteur := 0;
+  BEGIN
+    IF reset = '0' THEN
+      enableTX <= '0';
       cpt := 0;
-    elsif rising_edge(clk) then 
-      if cpt = 15 then
+    ELSIF rising_edge(clk) THEN
+      IF cpt = 15 THEN
         enableTX <= '1';
-      else
+      ELSE
         enableTX <= '0';
-      end if;
+      END IF;
 
-      cpt:= cpt + 1;
-      if cpt = 16 then
+      cpt := cpt + 1;
+      IF cpt = 16 THEN
         cpt := 0;
-      end if;
-    end if;
-  end process;
+      END IF;
+    END IF;
+  END PROCESS;
 
-end behavorial;
+END behavorial;
