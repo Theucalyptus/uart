@@ -115,7 +115,7 @@ BEGIN
 
             IF bufld THEN
               -- si le buffer contient des données on repasse directement en émission
-              etat <= start;
+              etat <= load;
             END IF;
           END IF;
 
