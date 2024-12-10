@@ -27,7 +27,7 @@ ARCHITECTURE behavior OF testRxUnit IS
   END COMPONENT;
   --Inputs
   SIGNAL clk   : STD_LOGIC := '0';
-  SIGNAL reset : STD_LOGIC := '1';
+  SIGNAL reset : STD_LOGIC := '0';
   SIGNAL read  : STD_LOGIC := '0';
   SIGNAL rxd   : STD_LOGIC := '0';
 
@@ -64,15 +64,17 @@ BEGIN
     WAIT FOR clk_period/2;
   END PROCESS;
 
-  rxd <= '1', '0' AFTER 450 ns,
-    '1' AFTER 850 ns,
-    '0' AFTER 1250 ns,
-    '1' AFTER 1650 ns,
-    '0' AFTER 2050 ns,
-    '1' AFTER 2450 ns,
-    '0' AFTER 2850 ns,
-    '1' AFTER 3250 ns,
-    '0' AFTER 3650 ns,
-    '1' AFTER 4750 ns;
+  reset <= '0', '1' AFTER 100 ns;
+
+  rxd <= '1', '0' AFTER 550 ns,
+    '1' AFTER 750 ns,
+    '0' AFTER 1350 ns,
+    '1' AFTER 1750 ns,
+    '0' AFTER 2150 ns,
+    '1' AFTER 2550 ns,
+    '0' AFTER 2950 ns,
+    '1' AFTER 3350 ns,
+    '0' AFTER 3750 ns,
+    '1' AFTER 4850 ns;
 
 END;

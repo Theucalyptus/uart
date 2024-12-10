@@ -36,6 +36,7 @@ BEGIN
 			ctrlEtat <= repos;
 			cpt    := 0;
 			bitCpt := 0;
+			data    <= "00000000";
 			dataReg <= "00000000";
 			tmpclk  <= '0';
 			tmprxd  <= '1';
