@@ -13,7 +13,7 @@ END RxUnit;
 
 ARCHITECTURE RxUnit_arch OF RxUnit IS
 	TYPE t_cptEtat IS (reposCpt, initCpt, stableCpt);
-	TYPE t_ctrlEtat IS (repos, reception, parity, recup);
+	TYPE t_ctrlEtat IS (repos, reception, parity, recup1, recup2);
 	SIGNAL cptEtat  : t_cptEtat;
 	SIGNAL ctrlEtat : t_ctrlEtat;
 
@@ -50,7 +50,7 @@ BEGIN
 			IF enable = '1' THEN
 				-- compteur 16
 				CASE cptEtat IS
-					WHEN reposCpt =>
+					WHEN reposCpt =>					
 						-- détection du bit de start
 						IF rxd = '0' THEN
 							cpt := 0;
@@ -59,7 +59,7 @@ BEGIN
 
 					WHEN initCpt =>
 						cpt := cpt + 1;
-						IF cpt = 7 THEN
+						IF cpt = 8 THEN
 							cptEtat <= stableCpt;
 							tmpclk  <= '1';
 							tmprxd  <= '0'; -- bit de start, hardcodé à 0 mais égal à rxd
@@ -82,7 +82,8 @@ BEGIN
 			CASE ctrlEtat IS
 
 				WHEN repos =>
-					-- on reset Ferr si il était flag
+					-- on clear le flag OErr
+					OErr <= '0';
 					Ferr <= '0';
 
 					-- on reçoit le bit de start
@@ -111,21 +112,24 @@ BEGIN
 						IF tmprxd = parityBit THEN
 							data <= dataReg;
 							DRdy <= '1';
+							ctrlEtat <= recup1;
 						ELSE -- bit de parité incohérent
 							-- on signal l'erreur
 							Ferr <= '1';
+							ctrlEtat <= repos;
 						END IF;
-						ctrlEtat <= recup;
 					END IF;
-				WHEN recup =>
+				WHEN recup1 =>
+					ctrlEtat <= recup2;
+				
+				WHEN recup2 =>				
 					-- la donnée n'est pas récupéré au second top de clk
 					IF read = '0' THEN
 						OErr <= '1';
 					END IF;
-
 					DRdy <= '0';
+					
 					-- on a fini la réception on retourne en repos
-					-- éventuellemet directement en reception ?
 					cptEtat  <= reposCpt;
 					ctrlEtat <= repos;
 				WHEN OTHERS => NULL;
