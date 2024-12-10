@@ -1,44 +1,44 @@
-library IEEE;
-use IEEE.std_logic_1164.all;
-use IEEE.std_logic_arith.all;
-use IEEE.std_logic_unsigned.all;
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
+USE IEEE.std_logic_arith.ALL;
+USE IEEE.std_logic_unsigned.ALL;
 
-entity UART_FPGA_N4 is
-  port (
-  -- ne garder que les ports utiles ?
+ENTITY UART_FPGA_N4 IS
+  PORT (
+    -- ne garder que les ports utiles ?
     -- les 16 switchs
-    swt : in std_logic_vector (15 downto 0);
+    swt : IN STD_LOGIC_VECTOR (15 DOWNTO 0);
     -- les 5 boutons noirs
-    btnC, btnU, btnL, btnR, btnD : in std_logic;
+    btnC, btnU, btnL, btnR, btnD : IN STD_LOGIC;
     -- horloge
-    mclk : in std_logic;
+    mclk : IN STD_LOGIC;
     -- les 16 leds
-    led : out std_logic_vector (15 downto 0);
+    led : OUT STD_LOGIC_VECTOR (15 DOWNTO 0);
     -- les anodes pour sélectionner les afficheurs 7 segments à utiliser
-    an : out std_logic_vector (7 downto 0);
+    an : OUT STD_LOGIC_VECTOR (7 DOWNTO 0);
     -- valeur affichée sur les 7 segments (point décimal compris, segment 7)
-    ssg : out std_logic_vector (7 downto 0)
+    ssg : OUT STD_LOGIC_VECTOR (7 DOWNTO 0)
     -- ligne série (à rajouter)
   );
-end UART_FPGA_N4;
+END UART_FPGA_N4;
 
-architecture synthesis of UART_FPGA_N4 is
+ARCHITECTURE synthesis OF UART_FPGA_N4 IS
 
   -- rappel du (des) composant(s)
   -- À COMPLÉTER 
 
-begin
+BEGIN
 
   -- valeurs des sorties (à modifier)
 
   -- convention afficheur 7 segments 0 => allumé, 1 => éteint
-  ssg <= (others => '1');
+  ssg <= (OTHERS => '1');
   -- aucun afficheur sélectionné
-  an(7 downto 0) <= (others => '1');
+  an(7 DOWNTO 0) <= (OTHERS => '1');
   -- 16 leds éteintes
-  led(15 downto 0) <= (others => '0');
+  led(15 DOWNTO 0) <= (OTHERS => '0');
 
   -- connexion du (des) composant(s) avec les ports de la carte
   -- À COMPLÉTER 
-    
-end synthesis;
+
+END synthesis;

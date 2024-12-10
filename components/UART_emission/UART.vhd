@@ -1,38 +1,40 @@
-library IEEE;
-use IEEE.std_logic_1164.all;
+LIBRARY IEEE;
+USE IEEE.std_logic_1164.ALL;
 
-entity UARTunit is
-  port (
-    clk, reset : in  std_logic;
-    cs, rd, wr : in  std_logic;
-    RxD        : in  std_logic;
-    TxD        : out std_logic;
-    IntR, IntT : out std_logic;         
-    addr       : in  std_logic_vector(1 downto 0);
-    data_in    : in  std_logic_vector(7 downto 0);
-    data_out   : out std_logic_vector(7 downto 0));
-end UARTunit;
-
-
-architecture UARTunit_arch of UARTunit is
+ENTITY UARTunit IS
+  PORT (
+    clk, reset : IN STD_LOGIC;
+    cs, rd, wr : IN STD_LOGIC;
+    RxD        : IN STD_LOGIC;
+    TxD        : OUT STD_LOGIC;
+    IntR, IntT : OUT STD_LOGIC;
+    addr       : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    data_in    : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+    data_out   : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+END UARTunit;
+ARCHITECTURE UARTunit_arch OF UARTunit IS
 
   -- a completer avec l'interface des differents composants
   -- de l'UART
 
-  signal lecture, ecriture : std_logic;
-  signal donnees_recues : std_logic_vector(7 downto 0);
-  signal registre_controle : std_logic_vector(7 downto 0);
+  SIGNAL lecture, ecriture : STD_LOGIC;
+  SIGNAL donnees_recues    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+  SIGNAL registre_controle : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
   -- a completer par les signaux internes manquants
 
-  begin  -- UARTunit_arch
+BEGIN -- UARTunit_arch
 
-    lecture <= '1' when cs = '0' and rd = '0' else '0';
-    ecriture <= '1' when cs = '0' and wr = '0' else '0';
-    data_out <= donnees_recues when lecture = '1' and addr = "00"
-                else registre_controle when lecture = '1' and addr = "01"
-                else "00000000";
-  
-    -- a completer par la connexion des differents composants
+  lecture <= '1' WHEN cs = '0' AND rd = '0' ELSE
+    '0';
+  ecriture <= '1' WHEN cs = '0' AND wr = '0' ELSE
+    '0';
+  data_out <= donnees_recues WHEN lecture = '1' AND addr = "00"
+    ELSE
+    registre_controle WHEN lecture = '1' AND addr = "01"
+    ELSE
+    "00000000";
 
-  end UARTunit_arch;
+  -- a completer par la connexion des differents composants
+
+END UARTunit_arch;
