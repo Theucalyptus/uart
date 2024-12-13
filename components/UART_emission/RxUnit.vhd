@@ -13,7 +13,7 @@ END RxUnit;
 
 ARCHITECTURE RxUnit_arch OF RxUnit IS
 	TYPE t_cptEtat IS (reposCpt, initCpt, stableCpt);
-	TYPE t_ctrlEtat IS (repos, reception, parity, recup1, recup2);
+	TYPE t_ctrlEtat IS (repos, reception, parity, fin, recup);
 	SIGNAL cptEtat  : t_cptEtat;
 	SIGNAL ctrlEtat : t_ctrlEtat;
 
@@ -23,6 +23,7 @@ ARCHITECTURE RxUnit_arch OF RxUnit IS
 	SIGNAL tmpclk    : STD_LOGIC;
 	SIGNAL tmprxd    : STD_LOGIC;
 	SIGNAL parityBit : STD_LOGIC;
+	SIGNAL parityERR : STD_LOGIC;
 BEGIN
 
 	PROCESS (clk, reset) IS
@@ -110,20 +111,31 @@ BEGIN
 					IF tmpclk = '1' THEN
 						-- si le bit de parité est correct
 						IF tmprxd = parityBit THEN
-							data <= dataReg;
-							DRdy <= '1';
-							ctrlEtat <= recup1;
+							-- pas d'erreur à signaler
+							parityERR <= '0';
 						ELSE -- bit de parité incohérent
-							-- on signal l'erreur
-							Ferr <= '1';
+							-- on signalera l'erreur
+							parityERR <= '1';
+						END IF;
+						ctrlEtat <= fin;
+					END IF;
+				
+				WHEN fin =>
+					IF tmpclk = '1' THEN
+						-- si le bit de fin est incorrect ou que le bit de parité
+						-- était incorrect
+						IF tmprxd = '0' or parityERR = '1' THEN
+							FErr <= '1';
 							ctrlEtat <= repos;
+						ELSE 
+							ctrlEtat <= recup;
+							data <= dataReg;
+							DRdy <= '1';						
 						END IF;
 					END IF;
-				WHEN recup1 =>
-					ctrlEtat <= recup2;
 				
-				WHEN recup2 =>				
-					-- la donnée n'est pas récupéré au second top de clk
+				WHEN recup =>				
+					-- la donnée n'a pas été récupérée
 					IF read = '0' THEN
 						OErr <= '1';
 					END IF;

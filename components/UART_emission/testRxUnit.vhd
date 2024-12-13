@@ -75,6 +75,6 @@ BEGIN
     '0' AFTER 2950 ns,
     '1' AFTER 3350 ns,
     '0' AFTER 3750 ns,
-    '1' AFTER 4150 ns;
+    '1' AFTER 4550 ns;
 
 END;
