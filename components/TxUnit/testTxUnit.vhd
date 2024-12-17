@@ -136,12 +136,86 @@ BEGIN
      wait for clk_period;
      ld <= '0';
 
-     -- compléter avec des tests qui montrent que la prise
-     -- en compte de la demande d'émission d'un second
-     -- caractère se fait lorsqu'on émet un premier caractère
-     -- et ceci quelque soit l'étape d'émission
+	  -- on attend que la première transmission soit terminée
+     wait for 2000 ns;	
 
-     wait;
+	  -- TEST #1 : dès que possible (état START)
+	-- l'émetteur est dispo ?
+     if not (regE='1' and bufE='1') then
+       wait until regE='1' and bufE='1';
+     end if;
+	  -- si oui, on envoit une donnée (0xEE)
+     wait for clk_period;
+     data <= "11101110";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  -- on attend que le buffer soit de nouveau libre
+	  wait until bufE='1';
+	  wait for clk_period;
+	  -- et on recharge imédiatement une donnée (0x33)
+	  data <= "00110011";
+     ld <= '1';
+     wait for clk_period;
+     ld <= '0';
+	  
+	  -- on attend que les deux émissions soient terminées
+	  wait for 4000ns;
+	  
+	  
+	  -- TEST #2: pendant la transmission  (état SEND) 
+	  -- et vérif bit parité
+	  -- on envoit une donnée (0xFF)
+     wait for clk_period;
+     data <= "11111111";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  -- on rechange data pour s'assurer que le buffer est bien utilisé
+	  data <= "00000000";	
+	  -- on attend jusqu'à être en plein milieu de la transmission
+	  wait for 600ns;
+	  -- on envoit une deuxième donnée (0xE3)
+	  data <= "11100011";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  
+	  wait for 4000ns;
+	  
+	  -- TEST #3: pendant la transmission (état PARITY)
+	  -- on envoit une donnée (0x66)
+     wait for clk_period;
+     data <= "01100110";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  -- on attend jusqu'à être dans l'état parity
+	  wait for 1480ns;
+	  -- on envoit une deuxième donnée (0x7C)
+	  data <= "01111100";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  
+	  wait for 4000ns;
+	  
+	  -- TEST #4: pendant la transmission (état FIN)
+	  -- on envoit une donnée (0x69)
+     wait for clk_period;
+     data <= "01101001";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  -- on attend jusqu'à être dans l'état parity
+	  wait for 1600ns;
+	  -- on envoit une deuxième donnée (0x42)
+	  data <= "01000010";
+     ld <= '1';
+	  wait for clk_period;
+     ld <= '0';
+	  
+	  wait;
    end process;
 
 END;
