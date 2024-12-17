@@ -76,7 +76,7 @@ BEGIN
     '1' AFTER 3350 ns,
     '0' AFTER 3750 ns,
     '1' AFTER 4550 ns;
-	 
+
   read <= '0', '1' AFTER 4410 ns, '0' AFTER 4438 ns;
 
 END;

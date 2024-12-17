@@ -2,147 +2,140 @@ LIBRARY IEEE;
 USE IEEE.std_logic_1164.ALL;
 
 ENTITY UARTunit IS
-  PORT (
-    clk, reset : IN STD_LOGIC;
-    cs, rd, wr : IN STD_LOGIC;
-    RxD        : IN STD_LOGIC;
-    TxD        : OUT STD_LOGIC;
-    IntR, IntT : OUT STD_LOGIC;
-    addr       : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
-    data_in    : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-    data_out   : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+	PORT (
+		clk, reset : IN STD_LOGIC;
+		cs, rd, wr : IN STD_LOGIC;
+		RxD        : IN STD_LOGIC;
+		TxD        : OUT STD_LOGIC;
+		IntR, IntT : OUT STD_LOGIC;
+		addr       : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+		data_in    : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+		data_out   : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
 END UARTunit;
 ARCHITECTURE UARTunit_arch OF UARTunit IS
 
-  -- a completer avec l'interface des differents composants
-  -- de l'UART
-  	COMPONENT RxUnit
-	PORT(
-		clk : IN std_logic;
-		reset : IN std_logic;
-		enable : IN std_logic;
-		read : IN std_logic;
-		rxd : IN std_logic;          
-		data : OUT std_logic_vector(7 downto 0);
-		Ferr : OUT std_logic;
-		OErr : OUT std_logic;
-		DRdy : OUT std_logic
+	-- a completer avec l'interface des differents composants
+	-- de l'UART
+	COMPONENT RxUnit
+		PORT (
+			clk    : IN STD_LOGIC;
+			reset  : IN STD_LOGIC;
+			enable : IN STD_LOGIC;
+			read   : IN STD_LOGIC;
+			rxd    : IN STD_LOGIC;
+			data   : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+			Ferr   : OUT STD_LOGIC;
+			OErr   : OUT STD_LOGIC;
+			DRdy   : OUT STD_LOGIC
 		);
 	END COMPONENT;
-	
+
 	COMPONENT TxUnit
-	PORT(
-		clk : IN std_logic;
-		reset : IN std_logic;
-		enable : IN std_logic;
-		ld : IN std_logic;
-		data : IN std_logic_vector(7 downto 0);          
-		txd : OUT std_logic;
-		regE : OUT std_logic;
-		bufE : OUT std_logic
+		PORT (
+			clk    : IN STD_LOGIC;
+			reset  : IN STD_LOGIC;
+			enable : IN STD_LOGIC;
+			ld     : IN STD_LOGIC;
+			data   : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+			txd    : OUT STD_LOGIC;
+			regE   : OUT STD_LOGIC;
+			bufE   : OUT STD_LOGIC
 		);
 	END COMPONENT;
-	
+
 	COMPONENT ctrlUnit
-	PORT(
-		clk : IN std_logic;
-		reset : IN std_logic;
-		rd : IN std_logic;
-		cs : IN std_logic;
-		DRdy : IN std_logic;
-		FErr : IN std_logic;
-		OErr : IN std_logic;
-		BufE : IN std_logic;
-		RegE : IN std_logic;          
-		IntR : OUT std_logic;
-		IntT : OUT std_logic;
-		ctrlReg : OUT std_logic_vector(7 downto 0)
-		);
-   END COMPONENT;
-	
-  	COMPONENT clkUnit
-	PORT(
-		clk : IN std_logic;
-		reset : IN std_logic;          
-		enableTX : OUT std_logic;
-		enableRX : OUT std_logic
+		PORT (
+			clk     : IN STD_LOGIC;
+			reset   : IN STD_LOGIC;
+			rd      : IN STD_LOGIC;
+			cs      : IN STD_LOGIC;
+			DRdy    : IN STD_LOGIC;
+			FErr    : IN STD_LOGIC;
+			OErr    : IN STD_LOGIC;
+			BufE    : IN STD_LOGIC;
+			RegE    : IN STD_LOGIC;
+			IntR    : OUT STD_LOGIC;
+			IntT    : OUT STD_LOGIC;
+			ctrlReg : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
 		);
 	END COMPONENT;
 
-  signal lecture, ecriture : std_logic;
-  signal donnees_recues : std_logic_vector(7 downto 0);
-  signal registre_controle : std_logic_vector(7 downto 0);
+	COMPONENT clkUnit
+		PORT (
+			clk      : IN STD_LOGIC;
+			reset    : IN STD_LOGIC;
+			enableTX : OUT STD_LOGIC;
+			enableRX : OUT STD_LOGIC
+		);
+	END COMPONENT;
 
-  -- a completer par les signaux internes manquants
-  signal enableRX : std_logic;
-  signal enableTX : std_logic;
-  signal DRdy_int : std_logic;
-  signal OErr_int : std_logic;
-  signal Ferr_int : std_logic;
-  signal RegE_int : std_logic;
-  signal BufE_int : std_logic;
+	-- Signaux internes
 
+	SIGNAL lecture, ecriture : STD_LOGIC;
+	SIGNAL donnees_recues    : STD_LOGIC_VECTOR(7 DOWNTO 0);
+	SIGNAL registre_controle : STD_LOGIC_VECTOR(7 DOWNTO 0);
 
+	SIGNAL enableRX : STD_LOGIC;
+	SIGNAL enableTX : STD_LOGIC;
+	SIGNAL DRdy_int : STD_LOGIC;
+	SIGNAL OErr_int : STD_LOGIC;
+	SIGNAL Ferr_int : STD_LOGIC;
+	SIGNAL RegE_int : STD_LOGIC;
+	SIGNAL BufE_int : STD_LOGIC;
 
-  begin  -- UARTunit_arch
+BEGIN -- UARTunit_arch
+	lecture <= '1' WHEN cs = '0' AND rd = '0' ELSE
+		'0';
+	ecriture <= '1' WHEN cs = '0' AND wr = '0' ELSE
+		'0';
+	data_out <= donnees_recues WHEN lecture = '1' AND addr = "00"
+		ELSE
+		registre_controle WHEN lecture = '1' AND addr = "01"
+		ELSE
+		"00000000";
 
-    lecture <= '1' when cs = '0' and rd = '0' else '0';
-    ecriture <= '1' when cs = '0' and wr = '0' else '0';
-    data_out <= donnees_recues when lecture = '1' and addr = "00"
-                else registre_controle when lecture = '1' and addr = "01"
-                else "00000000";
-  
-    -- a completer par la connexion des differents composants
-	Inst_clkUnit: clkUnit PORT MAP(
-		clk => clk,
-		reset => reset,
+	Inst_clkUnit : clkUnit PORT MAP(
+		clk      => clk,
+		reset    => reset,
 		enableTX => enableTX,
 		enableRX => enableRX
 	);
-	
-	
-	
-	
-	Inst_RxUnit: RxUnit PORT MAP(
-		clk => clk,
-		reset => reset,
+
+	Inst_RxUnit : RxUnit PORT MAP(
+		clk    => clk,
+		reset  => reset,
 		enable => enableRX,
-		read => lecture,
-		rxd => RxD,
-		data => donnees_recues,
-		Ferr => Ferr_int,
-		OErr => OErr_int,
-		DRdy => DRdy_int 
+		read   => lecture,
+		rxd    => RxD,
+		data   => donnees_recues,
+		Ferr   => Ferr_int,
+		OErr   => OErr_int,
+		DRdy   => DRdy_int
 	);
-	
-	
-	Inst_TxUnit: TxUnit PORT MAP(
-		clk => clk,
-		reset => reset,
+
+	Inst_TxUnit : TxUnit PORT MAP(
+		clk    => clk,
+		reset  => reset,
 		enable => enableTX,
-		ld => ecriture,
-		txd => TxD,
-		regE => RegE_int,
-		bufE => BufE_int,
-		data => data_in
+		ld     => ecriture,
+		txd    => TxD,
+		regE   => RegE_int,
+		bufE   => BufE_int,
+		data   => data_in
 	);
-	
-	Inst_ctrlUnit: ctrlUnit PORT MAP(
-		clk => clk,
-		reset => reset,
-		rd => rd,
-		cs => cs,
-		DRdy => DRdy_int,
-		FErr => Ferr_int,
-		OErr => OErr_int,
-		BufE => BufE_int,
-		RegE => RegE_int,
-		IntR => IntR,
-		IntT => IntT,
+
+	Inst_ctrlUnit : ctrlUnit PORT MAP(
+		clk     => clk,
+		reset   => reset,
+		rd      => rd,
+		cs      => cs,
+		DRdy    => DRdy_int,
+		FErr    => Ferr_int,
+		OErr    => OErr_int,
+		BufE    => BufE_int,
+		RegE    => RegE_int,
+		IntR    => IntR,
+		IntT    => IntT,
 		ctrlReg => registre_controle
 	);
-	
-	
-	
-	
-  end UARTunit_arch;
+END UARTunit_arch;

@@ -1,7 +1,7 @@
 standard = "1993"
 
 [libraries]
-components.files = ['components/*.vhd', 'src/*.vhd', 'src/*/*.vhd']
+components.files = ['components/*.vhd', 'components/*/*.vhd', 'src/*.vhd', 'src/*/*.vhd']
 
 [lint]
 unused = 'warning'              # Upgrade the 'unused' diagnostic to the 'error' severity
