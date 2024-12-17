@@ -66,15 +66,16 @@ BEGIN
 
   reset <= '0', '1' AFTER 100 ns;
 
-  rxd <= '1', '0' AFTER 550 ns,
-    '1' AFTER 950 ns,
-    '0' AFTER 1350 ns,
-    '1' AFTER 1750 ns,
-    '0' AFTER 2150 ns,
+  rxd <= '1', '0' AFTER 550 ns, -- bit de start
+    '1' AFTER 950 ns, -- 1er bit
+    '0' AFTER 1350 ns, -- 2nd bit
+    '1' AFTER 1750 ns, -- ...
+    '1' AFTER 2150 ns,
     '1' AFTER 2550 ns,
-    '0' AFTER 2950 ns,
+    '1' AFTER 2950 ns,
     '1' AFTER 3350 ns,
-    '0' AFTER 3750 ns,
-    '1' AFTER 4550 ns;
+    '0' AFTER 3750 ns, -- 8e bit
+	 '1' AFTER 4150 ns, -- bit de parite éronné
+    '1' AFTER 4550 ns; -- bit de stop
 
 END;

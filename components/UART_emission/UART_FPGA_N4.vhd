@@ -3,7 +3,7 @@ USE IEEE.std_logic_1164.ALL;
 USE IEEE.std_logic_arith.ALL;
 USE IEEE.std_logic_unsigned.ALL;
 
-ENTITY Nexys4 IS
+ENTITY UART_FPGA_N4 IS
 	PORT (
 		-- ne garder que les ports utiles ?
 		-- les 16 switchs
@@ -24,9 +24,9 @@ ENTITY Nexys4 IS
 		rxd : IN STD_LOGIC
 
 	);
-END Nexys4;
+END UART_FPGA_N4;
 
-ARCHITECTURE synthesis OF Nexys4 IS
+ARCHITECTURE synthesis OF UART_FPGA_N4 IS
 	COMPONENT echoUnit
 		PORT (
 			clk      : IN STD_LOGIC;

@@ -5,10 +5,10 @@ USE ieee.std_logic_1164.ALL;
 -- arithmetic functions with Signed or Unsigned values
 --USE ieee.numeric_std.ALL;
 
-ENTITY testRxUnit3 IS
-END testRxUnit3;
+ENTITY testRxUnit4 IS
+END testRxUnit4;
 
-ARCHITECTURE behavior OF testRxUnit3 IS
+ARCHITECTURE behavior OF testRxUnit4 IS
 
   -- Component Declaration for the Unit Under Test (UUT)
 
@@ -78,6 +78,6 @@ BEGIN
 	 '0' AFTER 4150 ns, -- bit de parite
     '1' AFTER 4550 ns; -- bit de stop
 	 
-  read <= '0', '1' AFTER 4812 ns, '0' AFTER 4825 ns;
+  read <= '0';
 
 END;
